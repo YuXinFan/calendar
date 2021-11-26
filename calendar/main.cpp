@@ -13,22 +13,42 @@ private:
     int day_;    
     int days_month[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     std::string months[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-    int mmap[26*26*26+26*26+26]{-1};
     int MAX_year = 999999;
-    int char32int(const char *month){
-        return 26*26*(month[0]-'A')+26*(month[1]-'a')+ (month[2]-'a');
-    }
 
-    void initmmap(){
-        for (int i = 0; i < sizeof(months)/sizeof(months[0]); i++) {
-            mmap[char32int(months[i].c_str())] = i;
+    int month2idx(std::string month){
+        if (month == "Jan"){
+            return 0;
+        }else if (month == "Feb"){
+            return 1;
+        }else if (month == "Mar"){
+            return 2;
+        }else if (month == "Apr"){
+            return 3;
+        }else if (month == "May"){
+            return 4;
+        }else if (month == "Jun"){
+            return 5;
+        }else if (month == "Jul"){
+            return 6;
+        }else if (month == "Aug"){
+            return 7;
+        }else if (month == "Sep"){
+            return 8;
+        }else if (month == "Oct"){
+            return 9;
+        }else if (month == "Nov"){
+            return 0;
+        }else if (month == "Dec"){
+            return 11;
         }
+        return -1;
     }
 
     int FebDays(int year){
         int leap = isLeapYear(year);
         return 29 * leap + (1-leap) * 28;
     }
+
     bool isLeapYear(int year){
         if ( year % 4 != 0){
             return false;
@@ -48,7 +68,6 @@ public:
         year_ = year;
         month_ = std::string(month);
         day_ = day;
-        initmmap();
     }
     void print_today() {
         std::cout << year_ <<" " << month_ << " " << day_ << std::endl;
@@ -59,22 +78,24 @@ public:
         std::string mid    = "├────┼────┼────┼────┼────┼────┼────┤";
         std::string bottom = "└────┴────┴────┴────┴────┴────┴────┘";
 
-        std::cout << top << "\n" << title << "\n" << mid << "\n";
 
         int c = year_ / 100;
         int y = year_ % 100;
-        int m = char32int(month_.c_str());
+        int m = month2idx(month_);
         int w = (day_ + (13*m-1)/5 + y +y/4+ c/4-2 * c) % 7;
-        std::string pad[42]{"  "};
-        for (int i = w, j=0; i < w+days_month[m]; i++,j++){
+        std::string pad[42];
+        for (int i = 0; i < 42; i++) { pad[i] = "  ";}
+        for (int i = w, j=1; i < w+days_month[m]; i++,j++){
             std::string num = std::to_string(j);
             if (j < 10){
                 num = "0" + num;
             }
-            pad[w] =  num ;
+            pad[i] =  num ;
         }
+        std::cout << month_ <<"                                 \n";
+        std::cout << top << "\n" << title << "\n" << mid << "\n";
         for (int i = 0; i < 6;  i++){
-            std::cout << "│ " << pad[i*7] <<" │ " << pad[i*7+1] << "│ " << pad[i*7+2] << "│ " << pad[i*7+3] <<" │ " << pad[i*7+4] <<" │ " << pad[i*7+6] <<" │\n"; 
+            std::cout << "│ " << pad[i*7] <<" │ " << pad[i*7+1] << " │ " << pad[i*7+2] << " │ " << pad[i*7+3] <<" │ " << pad[i*7+4] <<" │ " << pad[i*7+5] <<" │ " << pad[i*7+6] <<" │\n"; 
             if ( i == 5 ) {
                 std::cout << bottom << std::endl;
             } else {
@@ -84,11 +105,11 @@ public:
 
     };
     void print_year(){
-        
+        std::cout << "Year Table" << std::endl;
     }
     bool go_to(int year, char* month, int day){
-        int month_idx = mmap[char32int(month)];
-        if (year >= 1 && year <= 9999){
+        int month_idx = month2idx(std::string(month));
+        if (year >= 1 && year <= MAX_year){
             if (month_idx != -1) {
                 if ( day < 0) {
                     return false;
@@ -105,13 +126,13 @@ public:
         return false;
 UPDATE: 
         year_ = year;
-        month_ = month;
+        month_ = std::string(month);
         day_ = day;
         return true;
     };
     bool pass_day(int num_days){
         int year = year_;
-        int month_idx = char32int(month_.c_str());
+        int month_idx = month2idx(month_);
         int day =  day_;
         
         days_month[1] = FebDays(year);
@@ -151,22 +172,21 @@ UPDATE:
         day = num_days + 1;
 
         year_ = year;
-        month_ = mmap[month_idx];
+        month_ = months[month_idx];
         day_ = day;
         return true;       
     };
     bool pass_month(int num_months){
+        int month_idx = month2idx(month_);
         int years = num_months / 12;
         num_months = num_months % 12; 
-        pass_year(years);
 
-        int month_idx = char32int(month_.c_str());
         month_idx += num_months;
         month_idx = month_idx % 12;
-        years = month_idx / 12;
+        years += month_idx / 12;
         pass_year(years);
 
-        month_ = months[month_idx].c_str();
+        month_ = months[month_idx];
         return true;
     };
     bool pass_year(int num_years){
@@ -178,6 +198,7 @@ UPDATE:
             year_ = year;
             month_ = months[0].c_str();
             day_ = 1;
+            return true;
         } 
     };
 
