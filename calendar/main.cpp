@@ -139,7 +139,7 @@ public:
         MIN_DAY = 1;
     }
     void print_today() {
-        deformat();
+        format();
         std::cout << year_ <<" " << month_ << " " << day_ << std::endl;
     }
     void print_month() {
@@ -151,7 +151,7 @@ public:
         
         std::string bottom = std::string("└────┴────┴────┴────┴────┴────┴────┘");
         
-        deformat();
+        format();
         int w = (tdays - day_ + 1) % 7;
         int m = month2idx(month_);
         std::string pad[42];
@@ -187,7 +187,7 @@ public:
         mid = mid + " " + mid + " " + mid;
         std::string bottom = std::string("└────┴────┴────┴────┴────┴────┴────┘");
         bottom = bottom + " " + bottom + " " + bottom;
-        deformat();
+        format();
         int year = year_;
         int month_idx = month2idx(month_);
         int day = day_;
@@ -272,7 +272,7 @@ public:
         return f;       
     }
     bool pass_month(int num_months){
-        deformat();
+        format();
         int month_idx = month2idx(month_);
         month_idx += num_months;
         int years = month_idx / 12;
@@ -285,7 +285,7 @@ public:
         return f;
     }
     bool pass_year(int num_years){
-        deformat();
+        format();
         int year = year_;
         year += num_years;
         bool f = go_to(year, month[0].c_str(), 1);
@@ -309,6 +309,35 @@ private:
             {41,40,39,41,40,39,41,40,39}
     };
     int days_year = 360;
+
+    int years_table = 4000;
+    int days_table[253] = {
+    1459166, 1460780, 1460777, 1461956, 1460690, 1461962, 1461836, 1462107, 1460358, 1461974,
+    1461909, 1462118, 1461471, 1462158, 1461754, 1461347, 1459691, 1461839, 1461869, 1462176,
+    1461435, 1462303, 1461793, 1461516, 1460493, 1462188, 1461830, 1461675, 1460686, 1461715,
+    1460608, 1460318, 1458605, 1461306, 1461869, 1462140, 1461471, 1462149, 1461790, 1461817,
+    1460403, 1461993, 1461867, 1461950, 1460722, 1461835, 1460799, 1460647, 1459232, 1461219,
+    1462147, 1461714, 1461072, 1461444, 1461190, 1460647, 1459579, 1460635, 1461386, 1460647,
+    1459813, 1459877, 1459891, 1459003, 1458425, 1458719, 1461568, 1461872, 1462230, 1461390,
+    1462197, 1461790, 1461718, 1460298, 1462288, 1461714, 1461805, 1460593, 1461808, 1460644,
+    1460675, 1458702, 1462113, 1461745, 1461826, 1460721, 1461910, 1460763, 1460723, 1459156,
+    1461605, 1460995, 1460725, 1459230, 1460538, 1459308, 1459158, 1458120, 1460517, 1462200,
+    1461793, 1461426, 1460933, 1461428, 1460608, 1459851, 1460267, 1461557, 1460725, 1459928,
+    1459840, 1460006, 1459198, 1458460, 1459121, 1461757, 1460647, 1460356, 1459449, 1460397,
+    1459200, 1458807, 1458343, 1460556, 1459043, 1459119, 1457941, 1459079, 1458009, 1458132,
+    1457940, 1460759, 1461959, 1461833, 1462147, 1461479, 1462071, 1461793, 1461110, 1461044,
+    1462158, 1461793, 1461387, 1461011, 1461468, 1460568, 1459812, 1459888, 1462179, 1461908,
+    1461516, 1460845, 1461713, 1460568, 1460084, 1459723, 1461715, 1460647, 1460358, 1459329,
+    1460437, 1459200, 1458650, 1458171, 1462143, 1461790, 1461817, 1460572, 1461865, 1460602,
+    1460680, 1459157, 1461913, 1460721, 1460764, 1459196, 1460649, 1459232, 1459159, 1458045,
+    1461191, 1461149, 1460764, 1459503, 1460344, 1459579, 1459041, 1458195, 1459934, 1459891,
+    1459082, 1458231, 1458865, 1458425, 1458133, 1457715, 1459584, 1462233, 1461754, 1461754,
+    1460683, 1461718, 1460683, 1460438, 1459240, 1461805, 1460608, 1460554, 1459133, 1460635,
+    1459122, 1459000, 1457939, 1461909, 1460723, 1460804, 1459116, 1460807, 1459155, 1459158,
+    1458006, 1460742, 1459308, 1459082, 1458120, 1459171, 1458120, 1458093, 1457727, 1460952,
+    1461468, 1460568, 1459891, 1459799, 1459890, 1459158, 1458385, 1459665, 1460006, 1459082,
+    1458460, 1458873, 1458419, 1458174, 1457711, 1459287, 1460397, 1459082, 1458807, 1458331,
+    1458845, 1458174, 1457861};
 
     int month2idx(std::string s){
         if ( s == "Sist"){
@@ -408,6 +437,14 @@ private:
             return false;
         }
         int year = 1;
+        for (int i = 0; i < sizeof(days_table)/sizeof(int); i++){
+            if (days > days_table[i]){
+                year += years_table;
+                days -= days_table[i];
+            }else{
+                break;
+            }
+        }
         int days_year = daysYear(year);
         while (days > days_year){
             year++;
@@ -443,23 +480,26 @@ private:
         year_ = year;
         month_ = in_leap_month? leap_month[month_idx]:month[month_idx];
         day_ = day;
-        if (in_leap_month){
-            std::cout<<"Try format "<<tdays<<" to "<<year_<<" "<<month_<<" "<<day_<<std::endl;
-        }else{
-            std::cout<<"Try format "<<tdays<<" to "<<year_<<" "<<month_<<" "<<day_<<std::endl;
-        }
+        std::cout<<"Try format "<<tdays<<" to "<<year_<<" "<<month_<<" "<<day_<<std::endl;
         //std::cout<<"format "<<tdays<<" as "; print_today();
         return true;
     }
-    void deformat(){//bug
+    void deformat(){
         int year = 1;
         int day = day_;
         int days = 0;
+        for (int i = 0; i < sizeof(days_table)/sizeof(int); i++){
+            if (year_ > year + years_table){
+                year += years_table;
+                days += days_table[i];
+            }else{
+                break;
+            }
+        }
         while ( year < year_){
             days += daysYear(year);
             year++;
         }
-        // std::cout <<days<<std::endl;
         int month_idx = month2idx(month_);
         if (isLeap(year)){
             int leap_month_idx = leapMonth(year) -1 ;
@@ -468,32 +508,25 @@ private:
                 month_idx = leapMonth2idx(month_);
                 in_leap_month = true;
             }
-            while(month_idx > 0){
-                if (in_leap_month){
+            for (int i = 0; i < month_idx;){
+                if ( i == leap_month_idx && in_leap_month == true){
+                    days += daysMonth(year, month[i]);
                     in_leap_month = false;
-                    days += daysMonth(year, month[month_idx]);
-                }else if (month_idx == leap_month_idx +1){
-                    in_leap_month = true;
-                    days += daysMonth(year, month[month_idx-1]);
-                    month_idx--;
                 }else{
-                    days += daysMonth(year, month[month_idx-1]);
-                    month_idx--;
+                    days += daysMonth(year, month[i]);
+                    i++;
                 }
             }
+            if (month_idx == leap_month_idx){
+                days += daysMonth(year, month[month_idx]);
+            }
         }else{
-            while ( month_idx > 0){
-                days += daysMonth(year, month[month_idx-1]);
-                month_idx--;
-                // std::cout <<days<<std::endl;
-            }   
+            for (int i = 0; i < month_idx; i++){
+                days += daysMonth(year, month[i]);
+            }
         }
         days += day_;
-        // std::cout <<days<<std::endl;
-
         tdays = days;
-        // std::cout <<tdays<<std::endl;
-
     }
 public:
     //Shanghaitech():Gregorian(){}
@@ -525,7 +558,6 @@ public:
             if (month_idx != -1) {
                 if ( day > 0 && day <= daysMonth(year, std::string(month))){
                     update(year, std::string(month), day);
-                    //std::cout <<"update to "<<year<<" " <<month<<" "<<day<<std::endl;
                     deformat();
                     return true;
                 }
