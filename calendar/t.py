@@ -9,7 +9,11 @@ def leap(year):
         return True
     else:
         return False
-
+def monthsYear(year):
+    if (leap(year)):
+        return 9
+    else:
+        return 10
 def daysYear(year):
     if (leap(year)):
         leapMonth = (abs(year-bitCount(year))%9)+1
@@ -32,7 +36,7 @@ def to_c_array(values, ctype="float", name="table", formatter=str, colcount=10):
 l = []
 days = 0
 for i in range(1,1014560):
-    days+=daysYear(i)
+    days+=monthsYear(i)
     if (i%4000 == 0):
         l.append(days)
         days = 0

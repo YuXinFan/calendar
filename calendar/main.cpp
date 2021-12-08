@@ -130,16 +130,15 @@ public:
         return true;
     }
 public:
-    Gregorian(){}
     Gregorian(int year, char* month, int day){
         MAX_YEAR = 999999;
         MIN_YEAR = 1;
         days_round = 4000 * 365 + 4000/4 - 4000/100 + 4000/400 - 4000/4000;
         MAX_DAY = 999999 * 365 + 999999/4 - 999999/100 + 999999/400 - 999999/4000;
         MIN_DAY = 1;
+        tdays = 0;
     }
     void print_today() {
-        format();
         std::cout << year_ <<" " << month_ << " " << day_ << std::endl;
     }
     void print_month() {
@@ -151,7 +150,6 @@ public:
         
         std::string bottom = std::string("└────┴────┴────┴────┴────┴────┴────┘");
         
-        format();
         int w = (tdays - day_ + 1) % 7;
         int m = month2idx(month_);
         std::string pad[42];
@@ -187,7 +185,6 @@ public:
         mid = mid + " " + mid + " " + mid;
         std::string bottom = std::string("└────┴────┴────┴────┴────┴────┴────┘");
         bottom = bottom + " " + bottom + " " + bottom;
-        format();
         int year = year_;
         int month_idx = month2idx(month_);
         int day = day_;
@@ -260,19 +257,20 @@ public:
         return false;
     }
     bool pass_day(int num_days){
-        std::cout << "GGGpass_day from " << tdays <<" "<<std::endl;
-
+        std::cout<<"[---pass_day---"<<std::endl;
+        print_today();
+        std::cout<<"--- "<<num_days<<" days ---"<<std::endl;
         tdays += num_days;
-
+        
         bool f = format();
         if (!f){
             tdays -= num_days;
         }
-        f = go_to(year_, month_.c_str(), day_);
+        print_today();
+        std::cout<<"---pass_day---]"<<std::endl;
         return f;       
     }
     bool pass_month(int num_months){
-        format();
         int month_idx = month2idx(month_);
         month_idx += num_months;
         int years = month_idx / 12;
@@ -285,7 +283,6 @@ public:
         return f;
     }
     bool pass_year(int num_years){
-        format();
         int year = year_;
         year += num_years;
         bool f = go_to(year, month[0].c_str(), 1);
@@ -302,7 +299,7 @@ private:
     std::string month_;
     int day_;
     std::string month[9] = {"Sist", "Spst", "Slst", "Sem", "Sca", "Ims", "Ihuman", "Siais", "Ih"};
-    std::string leap_month[9] = {"SISI", "SPST", "SLST", "SEM", "SCA", "IMS", "IHUMAN", "SIAIS", "IH"};
+    std::string leap_month[9] = {"SIST", "SPST", "SLST", "SEM", "SCA", "IMS", "IHUMAN", "SIAIS", "IH"};
     int days_month[3][9] = {
             {39,41,40,39,41,40,39,41,40},
             {40,39,41,40,39,41,40,39,41},
@@ -338,6 +335,34 @@ private:
     1461468, 1460568, 1459891, 1459799, 1459890, 1459158, 1458385, 1459665, 1460006, 1459082,
     1458460, 1458873, 1458419, 1458174, 1457711, 1459287, 1460397, 1459082, 1458807, 1458331,
     1458845, 1458174, 1457861};
+
+    int months_table[253] = {
+    39522, 39482, 39482, 39451, 39484, 39451, 39454, 39445, 39492, 39451,
+    39452, 39445, 39463, 39444, 39454, 39463, 39508, 39455, 39453, 39444,
+    39463, 39441, 39453, 39459, 39487, 39444, 39452, 39455, 39481, 39454,
+    39482, 39489, 39534, 39469, 39453, 39446, 39461, 39446, 39453, 39452,
+    39487, 39450, 39451, 39449, 39479, 39452, 39477, 39481, 39517, 39470,
+    39444, 39455, 39470, 39462, 39467, 39481, 39508, 39483, 39462, 39481,
+    39502, 39501, 39500, 39523, 39538, 39533, 39462, 39453, 39443, 39464,
+    39444, 39453, 39454, 39491, 39442, 39455, 39452, 39483, 39452, 39481,
+    39480, 39531, 39447, 39454, 39452, 39479, 39450, 39478, 39479, 39519,
+    39458, 39472, 39479, 39517, 39484, 39515, 39519, 39546, 39488, 39443,
+    39453, 39461, 39475, 39461, 39482, 39501, 39492, 39458, 39479, 39499,
+    39502, 39497, 39518, 39537, 39522, 39453, 39481, 39488, 39512, 39487,
+    39518, 39528, 39541, 39483, 39522, 39520, 39551, 39521, 39549, 39546,
+    39552, 39483, 39451, 39454, 39444, 39463, 39446, 39453, 39469, 39474,
+    39444, 39453, 39462, 39473, 39460, 39483, 39502, 39503, 39444, 39450,
+    39459, 39477, 39454, 39483, 39495, 39506, 39454, 39481, 39488, 39515,
+    39486, 39518, 39532, 39546, 39446, 39453, 39452, 39483, 39451, 39482,
+    39480, 39519, 39450, 39479, 39478, 39518, 39481, 39517, 39519, 39548,
+    39469, 39468, 39478, 39510, 39489, 39508, 39522, 39544, 39500, 39500,
+    39521, 39543, 39527, 39538, 39546, 39557, 39512, 39443, 39454, 39453,
+    39481, 39454, 39480, 39486, 39518, 39452, 39482, 39483, 39520, 39481,
+    39520, 39523, 39551, 39450, 39479, 39477, 39520, 39477, 39519, 39519,
+    39549, 39479, 39515, 39521, 39546, 39519, 39546, 39547, 39557, 39476,
+    39460, 39483, 39500, 39503, 39500, 39519, 39539, 39507, 39497, 39521,
+    39537, 39527, 39538, 39545, 39557, 39518, 39487, 39521, 39528, 39541,
+    39527, 39545, 39553};
 
     int month2idx(std::string s){
         if ( s == "Sist"){
@@ -480,11 +505,13 @@ private:
         year_ = year;
         month_ = in_leap_month? leap_month[month_idx]:month[month_idx];
         day_ = day;
-        std::cout<<"Try format "<<tdays<<" to "<<year_<<" "<<month_<<" "<<day_<<std::endl;
+        //std::cout<<"Try format "<<tdays<<" to "<<year_<<" "<<month_<<" "<<day_<<std::endl;
         //std::cout<<"format "<<tdays<<" as "; print_today();
         return true;
     }
     void deformat(){
+        std::cout<<"[S---deformat---"<<std::endl;
+        print_today1();
         int year = 1;
         int day = day_;
         int days = 0;
@@ -527,25 +554,154 @@ private:
         }
         days += day_;
         tdays = days;
+        std::cout<<"--- "<<tdays<<" ---"<<std::endl;
+        std::cout<<"---deformat---]"<<std::endl;
+        Gregorian::format();
     }
 public:
-    //Shanghaitech():Gregorian(){}
     Shanghaitech(int year, char* month, int day):Gregorian(year, month, day){
         MAX_YEAR = 1014560;
         MIN_YEAR = 1;
         bool f = go_to(year, month,day);
-        Gregorian::format();
         std::cout<<"Init MAX_DAY: "<<MAX_DAY<<" MIN_DAY: "<<MIN_DAY<<std::endl;
         std::cout<<f<<" Init Shanghaitech with "<<year<<" " <<month<<" "<<day<<" as "<< tdays <<" days"<<std::endl;
     }
+    void print_today1() {
+        std::cout << year_ <<" " << month_ << " " << day_ << std::endl;
+    };
     void print_today() {
+        format();
         std::cout << year_ <<" " << month_ << " " << day_ << std::endl;
     };
     void print_month() {
-        std::cout << "Month Table" << std::endl;
+        std::string top    = std::string("┌────┬────┬────┬────┬────┬────┬────┐");
+        
+        std::string title  = std::string("│ Sun│ Mon│Tues│ Wed│Thur│ Fri│ Sat│");
+        
+        std::string mid    = std::string("├────┼────┼────┼────┼────┼────┼────┤");
+        
+        std::string bottom = std::string("└────┴────┴────┴────┴────┴────┴────┘");
+        format();
+        int w = (tdays - day_ + 1) % 7;
+        int m = month2idx(month_);
+        int days = daysMonth(year_, month_);
+        std::string pad[49];
+        for (int i = 0; i < 49; i++) { pad[i] = "  ";}
+        int j = 1;
+        for (int i = w; i < w+days; i++){
+            std::string num = std::to_string(j);
+            if (j < 10){
+                num = std::string("0") + num;
+            }
+            pad[i] =  num ;
+            j++;
+        }
+        std::cout << month_ <<"                                 " << std::endl;
+        std::cout << top << "\n" << title << "\n" << mid << std::endl;
+        for (int i = 0; i < 7;  i++){
+            std::cout << "│ " << pad[i*7] <<" │ " << pad[i*7+1] << " │ " << pad[i*7+2] << " │ " << pad[i*7+3] <<" │ " << pad[i*7+4] <<" │ " << pad[i*7+5] <<" │ " << pad[i*7+6] <<" │" << std::endl; 
+            if ( i == 5 ) {
+                std::cout << bottom << std::endl;
+            }else{
+                std::cout << mid << std::endl;
+            }
+        }
     }
     void print_year(){
-        std::cout << "Year Table" << std::endl;
+        format();
+        std::string top    = std::string("┌────┬────┬────┬────┬────┬────┬────┐") ;
+        top = top + " " + top + " " + top;
+        std::string title  = std::string("│ Sun│ Mon│Tues│ Wed│Thur│ Fri│ Sat│");
+        title = title + " " + title + " " + title;
+        std::string mid    = std::string("├────┼────┼────┼────┼────┼────┼────┤");
+        mid = mid + " " + mid + " " + mid;
+        std::string bottom = std::string("└────┴────┴────┴────┴────┴────┴────┘");
+        bottom = bottom + " " + bottom + " " + bottom;
+        int year = year_;
+        std::string montht = month_;
+        int day = day_;
+        go_to(year, month[0].c_str(), 1);
+        int tday = tdays;
+        go_to(year, montht.c_str(), day);
+        int w = tday % 7;
+        std::string pad[10][49];
+        for (int i = 0; i < 10; i++) { 
+            for (int j = 0; j < 49; j++){
+                pad[i][j] = std::string("  ");
+            }
+        }
+        int days[10];
+        int j = 0;
+        for (int i = 0; i < 10; i++){
+            if (isLeap(year) && leapMonth(year) -1 == i){
+                    days[j] = days_month[year%3][j];
+                    days[j+1] = days_month[year%3][j];
+                    j++;
+            }else{
+                days[j] = days_month[year%3][j];
+            }
+            j++;
+        }
+        if (! isLeap(year)){
+            days[9] = 0;
+        }
+        for (int m = 0; m < 10; m++){
+            int j = 1;
+            for (int i = w; i < w+days[m]; i++){
+                std::string num = std::to_string(j);
+                if (j < 10){
+                    num = std::string("0") + num;
+                }
+                pad[m][i] =  num ;
+                j++;
+            }
+            w = (w + days[m]) % 7;
+        }
+
+        for (int i = 0; i < 3; i++){
+            for (int j = 0; j < 3; j++){
+                std::cout << month[i*3+j] <<"                                 ";
+                if ( j < 2 ){
+                    std::cout << " ";
+                }
+            }
+            std::cout << std::endl;
+            std::cout << top << "\n" << title << "\n" << mid << std::endl;
+            for (int k = 0; k < 7;  k++){
+                for (int j = 0; j < 3; j++){
+                    std::cout << "│ " << pad[i*3+j][k*7] << \
+                                " │ " << pad[i*3+j][k*7+1] << \
+                                " │ " << pad[i*3+j][k*7+2] << \
+                                " │ " << pad[i*3+j][k*7+3] << \
+                                " │ " << pad[i*3+j][k*7+4] << \
+                                " │ " << pad[i*3+j][k*7+5] << \
+                                " │ " << pad[i*3+j][k*7+6] << \
+                                " │" ;
+                    if ( j < 2){
+                        std::cout << " ";
+                    } 
+                }
+                std::cout << std::endl;
+                if ( k == 6 ) {
+                    std::cout << bottom << std::endl;
+                }else{
+                    std::cout << mid << std::endl;
+                }
+            }
+        }
+        if (isLeap(year)){
+            std::string mon = days[9] == days[8] ? leap_month[8] : month[8];
+            std::cout << mon <<"                                 " << std::endl;
+            std::cout << top << "\n" << title << "\n" << mid << std::endl;
+            for (int i = 0; i < 7;  i++){
+                std::cout << "│ " << pad[i*7] <<" │ " << pad[i*7+1] << " │ " << pad[i*7+2] << " │ " << pad[i*7+3] <<" │ " << pad[i*7+4] <<" │ " << pad[i*7+5] <<" │ " << pad[i*7+6] <<" │" << std::endl; 
+                if ( i == 5 ) {
+                    std::cout << bottom << std::endl;
+                }else{
+                    std::cout << mid << std::endl;
+                }
+            }
+        }
     }
     bool go_to(int year, const char* month, int day){
         int month_idx = month2idx(std::string(month));
@@ -557,8 +713,10 @@ public:
         if (year >= MIN_YEAR && year <= MAX_YEAR){
             if (month_idx != -1) {
                 if ( day > 0 && day <= daysMonth(year, std::string(month))){
-                    update(year, std::string(month), day);
+                    std::cout<<"Log Update: "<<year<<month<<day<<std::endl;
+                    update(year, month, day);
                     deformat();
+                    Gregorian::format();
                     return true;
                 }
             }
@@ -566,87 +724,88 @@ public:
         return false;
     }
     bool pass_day(int num_days){
-        std::cout << "pass_day from " << tdays <<" ";
-        tdays += num_days;
-        std::cout << " to " << tdays <<" ";
-
-        bool f = format();
-        std::cout << (f ? "True ":"False ");
-        if (!f){
-            tdays -= num_days;
+        bool f = Gregorian::pass_day(num_days);
+        if (f){
+            format();
         }
-        std::cout<<"end with "<<tdays<<std::endl;
-        f = go_to(year_, month_.c_str(), day_);
         return f;
     }
     bool pass_month(int num_months){
+        std::cout<<"[---pass_month---"<<std::endl;
+        format();
+        print_today1();
+        std::cout<<"--- "<<num_months<<" month ---"<<std::endl;
+        int year = 1;
+        int months = 0;
+        for (int i = 0; i < sizeof(months_table)/sizeof(int);i++){
+            if(year < year_ - years_table) {
+                months += months_table[i];
+                year += years_table;
+            }else {
+                break;
+            }
+        }
+        while (year < year_){
+            months += monthsYear(year);
+            year++;
+        }
         int month_idx = month2idx(month_);
-        if (month_idx == -1){
-            month_idx = leapMonth2idx(month_);
-            num_months += month_idx + 1;
+        if (isLeap(year_)){
+            int leap_month_idx = leapMonth(year_)-1;
+            if (month_idx == -1 ){
+                months += num_months + leap_month_idx + 1; 
+            }else if (month_idx > leap_month_idx){
+                months += num_months + month_idx + 1; 
+            }else{
+                months += num_months + month_idx;
+            }
         }else{
-            num_months += month_idx;
+            months += num_months + month_idx;
         }
-        month_idx = 0;
-        int year = year_;
-        if (num_months > 0){
-            int month_year = monthsYear(year);
-            while (num_months >= month_year){
-                year++;
-                num_months -= month_year;
-                month_year = monthsYear(year);
+
+        year = 1;
+        for (int i = 0; i < sizeof(months_table)/sizeof(int);i++){
+            if(months > months_table[i]) {
+                months -= months_table[i];
+                year += years_table;
+            }else {
+                break;
             }
-            month_idx = num_months;
-            std::string m = "";
-            bool leap = isLeap(year);
-            if (leap){
-                int leap_month_idx = leapMonth(year)-1;
-                if (month_idx - 1 == leap_month_idx){
-                    month_idx--;
-                    m = leap_month[month_idx];
-                }else if (month_idx > leap_month_idx){
-                    month_idx--;
-                    m = month[month_idx];
-                }else {
-                    m = month[month_idx];
-                }
+        }
+        while (months > monthsYear(year)){
+            months -= monthsYear(year);
+            year++;
+        }
+        month_idx = months-1;
+        bool leap = isLeap(year);
+        std::string m = "";
+        if (leap){
+            int leap_month_idx = leapMonth(year)-1;
+            if (month_idx > leap_month_idx){
+                month_idx--;
+            }
+            if (month_idx == leap_month_idx){
+                m = leap_month[month_idx];
             }else{
                 m = month[month_idx];
             }
-            bool  f = go_to(year, m.c_str(), 1);
-            return f;
-        }else if (num_months < 0){
-            int month_year = monthsYear(year-1);
-            while (num_months <= -month_year){
-                year--;
-                num_months += month_year;
-                month_year = monthsYear(year-1);
-            }
-            year--;
-            month_idx = monthsYear(year) + num_months;
-            std::string m = "";
-            bool leap = isLeap(year);
-            if (leap){
-                int leap_month_idx = leapMonth(year)-1;
-                if (month_idx + 1 == leap_month_idx){
-                    month_idx++;
-                    m = leap_month[month_idx];
-                }else if (month_idx < leap_month_idx){
-                    month_idx++;
-                    m = month[month_idx];
-                }else {
-                    m = month[month_idx];
-                }
-            }else{
-                m = month[month_idx];
-            }
-            bool  f = go_to(year, m.c_str(), 1);
-            return f;
+        }else{
+            m = month[month_idx];
         }
-        return false;
+        std::cout<<"Log: "<<year<<m<<1<<std::endl;
+        bool  f = go_to(year, m.c_str(), 1);
+        print_today1();
+        std::cout<<"---pass_month---] "<<f<<std::endl;
+        return f;
     }
     bool pass_year(int num_years){
+        format();
+        std::cout<<"[---pass_year---"<<std::endl;
+        print_today1();
+        std::cout<<"--- "<<num_years<<" year ---"<<std::endl;
         bool f = go_to(year_ + num_years, month[0].c_str(), 1);
+        print_today1();
+        std::cout<<"---pass_year---] "<<f<<std::endl;
         return f;
     }
 };
