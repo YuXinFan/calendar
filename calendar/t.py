@@ -36,7 +36,7 @@ def to_c_array(values, ctype="float", name="table", formatter=str, colcount=10):
 l = []
 days = 0
 for i in range(1,1014560):
-    days+=daysYear(i)
+    days+=monthsYear(i)
     if (i%4000 == 0):
         l.append(days)
         days = 0
