@@ -5,7 +5,7 @@
 
 //TEMPLATE BEGIN
 //You just need to implement these two classes
-//#define LOG 
+#define LOG 
 class Gregorian{
 public:
     int tdays;   
@@ -263,7 +263,7 @@ public:
         #endif
         int year = (m / 12);
         m= m % 12 ;
-        Date c = m == 0 ? Date(year, "Dec", 1) : Date(year + 1, month[m-1].c_str(), 1);
+        Date c = m < 0 ? Date(-1, " ", -1) : m == 0 ? Date(year, "Dec", 1) : Date(year + 1, month[m-1].c_str(), 1);
         bool f = go_to(c.year, c.month.c_str(), 1);
         
         #ifdef LOG
